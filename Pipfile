@@ -9,7 +9,7 @@ uvicorn = "*"
 dotenv = "*"
 python-jose = "*"
 requests = "*"
-clerk-sdk = "*"
+clerk-backend-api = "*"
 
 [dev-packages]
 pre-commit = "*"
