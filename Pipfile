@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 fastapi = {extras = ["standard"], version = "*"}
 uvicorn = "*"
+dotenv = "*"
+python-jose = "*"
+requests = "*"
+clerk-sdk = "*"
 
 [dev-packages]
 pre-commit = "*"
