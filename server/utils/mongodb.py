@@ -4,7 +4,8 @@ MongoDB util functions file.
 
 from pymongo import AsyncMongoClient
 from pymongo.errors import ConnectionFailure
-from services.aws.ssm import get_secret
+
+from server.utils.aws.ssm import get_secret
 
 
 def create_mongodb_instance() -> AsyncMongoClient | None:
