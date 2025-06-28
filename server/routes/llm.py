@@ -34,14 +34,3 @@ async def query_llm(body: LLMRequestBody, note_id: str):
         print("Other error:", str(e))
 
     return {"status": 200, "message": "IT WORKS! 🚀"}
-
-
-"""
-POST /notes/{noteID}
-
-  {
-    file_ids: [fileID, fileID],
-    message: String
-  }
-
-"""
