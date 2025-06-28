@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = {extras = ["standard"], version = "*"}
-uvicorn = "*"
 dotenv = "*"
 python-jose = "*"
 requests = "*"
 clerk-backend-api = "*"
+fastapi = {extras = ["all"], version = "*"}
+uvicorn = "*"
 
 [dev-packages]
 pre-commit = "*"
