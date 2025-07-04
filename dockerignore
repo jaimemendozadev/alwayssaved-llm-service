@@ -1,0 +1,36 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+.env/
+.venv/
+venv/
+env/
+
+# Ignore Pipenv metadata (we only need requirements.txt)
+Pipfile
+Pipfile.lock
+
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore logs and misc
+*.log
+*.DS_Store
+
+# Ignore IDE/editor stuff
+.vscode/
+.idea/
+
+# Ignore .mp4 files
+*.mp4
+
+# Ignore local dev_utils
+dev_utils/
+
+# Add Dev Folders
+.mypy_cache/
+.ruff_cache/
