@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 dotenv = "*"
 python-jose = "*"
-requests = "*"
 clerk-backend-api = "*"
 fastapi = {extras = ["all"], version = "*"}
 uvicorn = "*"
@@ -14,6 +13,8 @@ pymongo = "*"
 boto3 = "*"
 sentence-transformers = "*"
 torch = "*"
+mistralai = "*"
+requests = "*"
 
 [dev-packages]
 pre-commit = "*"

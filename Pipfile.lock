@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5caedab52fafe003c4b70d31c08a6d8fcb8b41d6946d53f62d402656b469d345"
+            "sha256": "75db045e796568c04500077eb1485d9e3be1219daf04341431f586c7e5ff9d35"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -320,6 +320,14 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.2.0"
         },
+        "eval-type-backport": {
+            "hashes": [
+                "sha256:cb6ad7c393517f476f96d456d0412ea80f0a8cf96f6892834cd9340149111b0a",
+                "sha256:f0576b4cf01ebb5bd358d02314d31846af5e07678387486e2c798af0e7d849c1"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==0.2.2"
+        },
         "fastapi": {
             "extras": [
                 "all"
@@ -575,6 +583,15 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==0.1.2"
+        },
+        "mistralai": {
+            "hashes": [
+                "sha256:7c3fff00e50227d379dea82052455c2610612a8ef476fa97393191aeeb7ab15f",
+                "sha256:c0c6d5aff18ffccbc0d22c06fbc84280d71eeaeb08fa4e1ef7326b36629cfb0b"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.9'",
+            "version": "==1.9.2"
         },
         "mpmath": {
             "hashes": [
@@ -863,6 +880,9 @@
             "version": "==2.22"
         },
         "pydantic": {
+            "extras": [
+                "email"
+            ],
             "hashes": [
                 "sha256:d989c3c6cb79469287b1569f7447a17848c998458d49ebe294e975b9baf0f0db",
                 "sha256:dde5df002701f6de26248661f6835bbe296a47bf73990135c7d07ce741b9623b"
