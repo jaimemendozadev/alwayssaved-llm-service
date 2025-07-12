@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 
 from server.utils.clerk import clerk_authenticate_get_user_details
+from server.utils.llm.mistral import query_llm
 
 
 class ConvoPostRequestBody(BaseModel):
@@ -18,11 +19,13 @@ convos_router = APIRouter(
 
 
 @convos_router.post("/{convo_id}")
-async def query_llm(body: ConvoPostRequestBody, convo_id: str):
+async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str):
     print(f"convo_id: {convo_id}")
     print(f"body: {body}")
     try:
-       message = body.message
+        message = body.message
+
+        query_llm(message)
 
         return {"status": 200, "message": "IT WORKS! 🚀"}
     except RequestValidationError as e:
