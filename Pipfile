@@ -12,6 +12,8 @@ fastapi = {extras = ["all"], version = "*"}
 uvicorn = "*"
 pymongo = "*"
 boto3 = "*"
+sentence-transformers = "*"
+torch = "*"
 
 [dev-packages]
 pre-commit = "*"
