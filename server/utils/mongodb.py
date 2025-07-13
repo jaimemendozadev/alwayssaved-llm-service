@@ -2,10 +2,44 @@
 MongoDB util functions file.
 """
 
+from collections.abc import Mapping, Sequence
+from datetime import datetime
+
+from bson import ObjectId
 from pymongo import AsyncMongoClient
 from pymongo.errors import ConnectionFailure
 
 from server.utils.aws.ssm import get_secret
+
+
+def deep_serialize_mongo(doc, seen=None):
+    if seen is None:
+        seen = set()
+
+    # Avoid infinite recursion for shared/circular references
+    doc_id = id(doc)
+    if doc_id in seen:
+        return None  # or raise an error / return a placeholder
+    seen.add(doc_id)
+
+    # Convert ObjectId to string
+    if isinstance(doc, ObjectId):
+        return str(doc)
+
+    # Leave datetime as-is (FastAPI handles it)
+    if isinstance(doc, datetime):
+        return doc
+
+    # Recursively handle lists/tuples
+    if isinstance(doc, Sequence) and not isinstance(doc, str):
+        return [deep_serialize_mongo(item, seen) for item in doc]
+
+    # Recursively handle dictionaries
+    if isinstance(doc, Mapping):
+        return {key: deep_serialize_mongo(value, seen) for key, value in doc.items()}
+
+    # Return primitives as-is
+    return doc
 
 
 def create_mongodb_instance() -> AsyncMongoClient | None:

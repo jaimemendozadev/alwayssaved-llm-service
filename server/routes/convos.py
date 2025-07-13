@@ -8,7 +8,7 @@ from pymongo.errors import ServerSelectionTimeoutError
 
 from server.utils.clerk import authenticate_clerk_user
 from server.utils.llm.mistral import BASE_LLM_NO_RESPONSE, query_llm
-from server.utils.mongodb import create_mongodb_instance
+from server.utils.mongodb import create_mongodb_instance, deep_serialize_mongo
 from server.utils.qdrant import query_qdrant_with_message
 
 
@@ -73,8 +73,8 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             inserted_doc = await convo_msg_collection.find_one(
                 {"_id": llm_message.inserted_id}
             )
-            inserted_doc["_id"] = str(inserted_doc["_id"])  # convert ObjectId to string
-            return {"status": 200, "payload": inserted_doc}
+            sanitized_doc = deep_serialize_mongo(inserted_doc)
+            return {"status": 200, "payload": sanitized_doc}
 
         llm_error_message = await convo_msg_collection.insert_one(
             {
@@ -89,7 +89,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
         inserted_doc = await convo_msg_collection.find_one(
             {"_id": llm_error_message.inserted_id}
         )
-        inserted_doc["_id"] = str(inserted_doc["_id"])
+        sanitized_doc = deep_serialize_mongo(inserted_doc)
 
         return {"status": 200, "payload": inserted_doc}
 
