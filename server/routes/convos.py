@@ -1,4 +1,5 @@
 import os
+from typing import Any, Dict, Optional, Union
 
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,6 +20,17 @@ class ConvoPostRequestBody(BaseModel):
     message: str
 
 
+class ConvoResponse(BaseModel):
+    user_msg_id: str
+    llm_response: Dict[str, Any]
+
+
+class BackendResponse(BaseModel):
+    status: int
+    payload: Optional[Union[Any, list[Any]]] = None
+    message: Optional[str] = None
+
+
 convos_router = APIRouter(
     prefix="/convos", dependencies=[Depends(authenticate_clerk_user)]
 )
@@ -27,7 +39,7 @@ LLM_COMPANY = os.getenv("LLM_COMPANY", "Unknown")
 LLM_MODEL = os.getenv("LLM_MODEL", "Unknown")
 
 
-@convos_router.post("/{convo_id}")
+@convos_router.post("/{convo_id}", response_model=BackendResponse)
 async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str):
     print(f"convo_id: {convo_id}")
     print(f"body: {body}")
@@ -76,10 +88,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 {"_id": llm_message.inserted_id}
             )
             sanitized_doc = deep_serialize_mongo(inserted_doc)
-            return {
-                "status": 200,
-                "payload": {"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
-            }
+            return BackendResponse(
+                status=200,
+                payload={"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
+            )
 
         llm_error_message = await convo_msg_collection.insert_one(
             {
@@ -96,10 +108,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
         )
         sanitized_doc = deep_serialize_mongo(inserted_doc)
 
-        return {
-            "status": 200,
-            "payload": {"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
-        }
+        return BackendResponse(
+            status=200,
+            payload={"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
+        )
 
     except RequestValidationError as e:
         print(f"RequestValidationError for Convo {convo_id}: ", e.errors())
