@@ -24,18 +24,25 @@ convos_router = APIRouter(
 async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str):
     print(f"convo_id: {convo_id}")
     print(f"body: {body}")
+
+    user_id = body.user_id
+    conversation_id = body.conversation_id
     try:
         message = body.message
 
         mongo_client = create_mongodb_instance()
 
-        # mongo_client.get_database("alwayssaved").get_collection("users").find_one({"clerk_id": clerk_id})
-
-        qdrant_hits = query_qdrant_with_message(message)
+        qdrant_hits = query_qdrant_with_message(
+            message, message, user_id, conversation_id
+        )
 
         if len(qdrant_hits) > 0:
-            llm_response = query_llm(qdrant_hits, message)
+            llm_response = query_llm(qdrant_hits, message, user_id, conversation_id)
             return {"status": 200, "message": llm_response}
+
+        mongo_client.get_database("alwayssaved").get_collection("users").find_one(
+            {"clerk_id": clerk_id}
+        )
 
         return {"status": 200, "message": BASE_LLM_NO_RESPONSE}
     except RequestValidationError as e:

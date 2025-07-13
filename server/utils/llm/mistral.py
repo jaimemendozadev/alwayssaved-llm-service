@@ -40,7 +40,9 @@ def generate_prompt(qdrant_results: List[ScoredPoint], message: str) -> str:
     return prompt
 
 
-def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
+def query_llm(
+    qdrant_hits: List[ScoredPoint], message: str, user_id: str, convo_id: str
+) -> str:
     try:
         prompt = generate_prompt(qdrant_hits, message)
         messages = [{"role": "user", "content": prompt}]
@@ -51,7 +53,9 @@ def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
 
         # Safety check for empty choices
         if not chat_response.choices:
-            print("Warning: Mistral response has no choices.")
+            print(
+                f"Warning: Mistral response has no choices for User {user_id} Convo {convo_id}."
+            )
             return BASE_LLM_NO_RESPONSE
 
         # Extract assistant's message
@@ -60,5 +64,5 @@ def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
 
     except Exception as e:
         # Log and return fallback error message
-        print(f"Error during LLM query: {e}")
+        print(f"Error during LLM query for User {user_id} Convo {convo_id}: {e}")
         return BASE_LLM_NO_RESPONSE
