@@ -44,27 +44,35 @@ def get_qdrant_collection(q_client: QdrantClient) -> CollectionInfo | None:
     return None
 
 
-def query_qdrant_with_message(message: str) -> List[ScoredPoint]:
+def query_qdrant_with_message(
+    message: str, user_id: str, convo_id: str
+) -> List[ScoredPoint]:
     embedding_model: SentenceTransformer = get_embedd_model()
     qdrant_client: QdrantClient = get_qdrant_client()
 
     if not qdrant_client:
-        print("❌ Qdrant client could not be initialized.")
+        print(
+            f"❌ Qdrant client could not be initialized for User {user_id} Convo {convo_id}."
+        )
         return []
 
     if not message:
-        print("⚠️ Message is empty or None.")
+        print(f"⚠️ Message is empty or None User {user_id} Convo {convo_id}.")
         return []
 
     try:
         chunks = chunk_text(message)
         if not chunks:
-            print("⚠️ No chunks generated from the input message.")
+            print(
+                f"⚠️ No chunks generated from the input message for User {user_id} Convo {convo_id}."
+            )
             return []
 
         vectors = embedding_model.encode(chunks, normalize_embeddings=True)
         if not vectors.any():
-            print("⚠️ Failed to generate vectors from the message.")
+            print(
+                f"⚠️ Failed to generate vectors from the message for User {user_id} Convo {convo_id}."
+            )
             return []
 
         query_vector = np.mean(vectors, axis=0)
@@ -76,14 +84,20 @@ def query_qdrant_with_message(message: str) -> List[ScoredPoint]:
         )
 
         if not hits:
-            print("ℹ️ No results found for the query.")
+            print(
+                f"ℹ️ No results found for the query for User {user_id} Convo {convo_id}."
+            )
             return []
 
         return hits
 
     except UnexpectedResponse as e:
-        print(f"❌ Unexpected response from Qdrant: {e}")
+        print(
+            f"❌ Unexpected response from Qdrant for User {user_id} Convo {convo_id}: {e}"
+        )
     except Exception as e:
-        print(f"❌ General error during Qdrant query: {e}")
+        print(
+            f"❌ General error during Qdrant query for User {user_id} Convo {convo_id}: {e}"
+        )
 
     return []
