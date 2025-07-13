@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from server.utils.clerk import authenticate_clerk_user
 from server.utils.llm.mistral import query_llm
+from server.utils.mongodb import create_mongodb_instance
 from server.utils.qdrant import query_qdrant_with_message
 
 
@@ -25,6 +26,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
     print(f"body: {body}")
     try:
         message = body.message
+
+        mongo_client = create_mongodb_instance()
+
+        # mongo_client.get_database("alwayssaved").get_collection("users").find_one({"clerk_id": clerk_id})
 
         qdrant_hits = query_qdrant_with_message(message)
 

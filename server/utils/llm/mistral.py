@@ -2,7 +2,6 @@ import os
 from typing import List
 
 from mistralai import Mistral
-from mistralai.models import ChatCompletionResponse
 from qdrant_client.http.models.models import ScoredPoint
 
 from server.utils.aws.ssm import get_secret
@@ -37,12 +36,25 @@ def generate_prompt(qdrant_results: List[ScoredPoint], message: str) -> str:
     return prompt
 
 
-def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> ChatCompletionResponse:
+def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
+    try:
+        prompt = generate_prompt(qdrant_hits, message)
+        messages = [{"role": "user", "content": prompt}]
 
-    prompt = generate_prompt(qdrant_hits, message)
-    messages = [{"role": "user", "content": prompt}]
+        chat_response = mistral_client.chat.complete(
+            model=MISTRAL_MODEL, messages=messages
+        )
 
-    chat_response = mistral_client.chat.complete(model=MISTRAL_MODEL, messages=messages)
-    print(f"chat_response type: {type(chat_response)}")
-    print(f"chat_response: {chat_response}")
-    return chat_response
+        # Safety check for empty choices
+        if not chat_response.choices:
+            print("Warning: Mistral response has no choices.")
+            return "I'm sorry, I couldn't generate a response."
+
+        # Extract assistant's message
+        assistant_message = chat_response.choices[0].message.content.strip()
+        return assistant_message
+
+    except Exception as e:
+        # Log and return fallback error message
+        print(f"Error during LLM query: {e}")
+        return "An error occurred while processing your request."
