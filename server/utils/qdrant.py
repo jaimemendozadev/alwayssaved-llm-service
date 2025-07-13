@@ -83,6 +83,9 @@ def query_qdrant_with_message(
             limit=5,
         )
 
+        print(f"hits in query_qdrant_with_message: {hits}")
+        print("\n")
+
         if not hits:
             print(
                 f"ℹ️ No results found for the query for User {user_id} Convo {convo_id}."

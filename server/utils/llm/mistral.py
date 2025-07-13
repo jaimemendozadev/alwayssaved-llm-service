@@ -7,7 +7,7 @@ from qdrant_client.http.models.models import ScoredPoint
 from server.utils.aws.ssm import get_secret
 
 QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "alwayssaved_user_files")
-MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "open-mistral-7b")
+LLM_MODEL = os.getenv("LLM_MODEL", "open-mistral-7b")
 MISTRAL_API_KEY = get_secret("/alwayssaved/MISTRAL_API_KEY")
 
 mistral_client = Mistral(api_key=MISTRAL_API_KEY)
@@ -47,9 +47,10 @@ def query_llm(
         prompt = generate_prompt(qdrant_hits, message)
         messages = [{"role": "user", "content": prompt}]
 
-        chat_response = mistral_client.chat.complete(
-            model=MISTRAL_MODEL, messages=messages
-        )
+        chat_response = mistral_client.chat.complete(model=LLM_MODEL, messages=messages)
+
+        print(f"chat_response in query_llm: {chat_response}")
+        print("\n")
 
         # Safety check for empty choices
         if not chat_response.choices:
