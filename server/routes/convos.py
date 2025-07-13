@@ -3,7 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 
 from server.utils.clerk import authenticate_clerk_user
-from server.utils.llm.mistral import query_llm
+from server.utils.llm.mistral import BASE_LLM_NO_RESPONSE, query_llm
 from server.utils.mongodb import create_mongodb_instance
 from server.utils.qdrant import query_qdrant_with_message
 
@@ -34,13 +34,14 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
         qdrant_hits = query_qdrant_with_message(message)
 
         if len(qdrant_hits) > 0:
-            query_llm(qdrant_hits, message)
+            llm_response = query_llm(qdrant_hits, message)
+            return {"status": 200, "message": llm_response}
 
-        return {"status": 200, "message": "IT WORKS! 🚀"}
+        return {"status": 200, "message": BASE_LLM_NO_RESPONSE}
     except RequestValidationError as e:
-        print("Validation error:", e.errors())
+        print(f"RequestValidationError for Convo {convo_id}: ", e.errors())
 
     except Exception as e:
-        print("Other error:", str(e))
+        print(f"Other error for Convo {convo_id}: ", str(e))
 
-    return {"status": 200, "message": "IT WORKS! 🚀"}
+    return {"status": 500, "message": BASE_LLM_NO_RESPONSE}

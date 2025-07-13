@@ -12,6 +12,10 @@ MISTRAL_API_KEY = get_secret("/alwayssaved/MISTRAL_API_KEY")
 
 mistral_client = Mistral(api_key=MISTRAL_API_KEY)
 
+BASE_LLM_NO_RESPONSE = (
+    "I'm sorry, but we can't generate an answer. 😔 Please try asking in another way."
+)
+
 
 def generate_prompt(qdrant_results: List[ScoredPoint], message: str) -> str:
     user_input = ""
@@ -48,7 +52,7 @@ def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
         # Safety check for empty choices
         if not chat_response.choices:
             print("Warning: Mistral response has no choices.")
-            return "I'm sorry, I couldn't generate a response."
+            return BASE_LLM_NO_RESPONSE
 
         # Extract assistant's message
         assistant_message = chat_response.choices[0].message.content.strip()
@@ -57,4 +61,4 @@ def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> str:
     except Exception as e:
         # Log and return fallback error message
         print(f"Error during LLM query: {e}")
-        return "An error occurred while processing your request."
+        return BASE_LLM_NO_RESPONSE
