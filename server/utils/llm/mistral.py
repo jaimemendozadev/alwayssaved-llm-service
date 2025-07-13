@@ -2,10 +2,10 @@ import os
 from typing import List
 
 from mistralai import Mistral
+from mistralai.models import ChatCompletionResponse
 from qdrant_client.http.models.models import ScoredPoint
 
 from server.utils.aws.ssm import get_secret
-from server.utils.qdrant import query_qdrant_with_message
 
 QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "alwayssaved_user_files")
 MISTRAL_MODEL = os.getenv("MISTRAL_MODEL", "open-mistral-7b")
@@ -37,22 +37,12 @@ def generate_prompt(qdrant_results: List[ScoredPoint], message: str) -> str:
     return prompt
 
 
-def query_llm(message: str) -> str:
+def query_llm(qdrant_hits: List[ScoredPoint], message: str) -> ChatCompletionResponse:
 
-    hits = query_qdrant_with_message(message)
+    prompt = generate_prompt(qdrant_hits, message)
+    messages = [{"role": "user", "content": prompt}]
 
-    # print(f"hits in query_llm: {hits}")
-
-    if len(hits) > 0:
-        prompt = generate_prompt(hits, message)
-        messages = [{"role": "user", "content": prompt}]
-        chat_response = mistral_client.chat.complete(
-            model=MISTRAL_MODEL, messages=messages
-        )
-
-        print(f"chat_response type: {type(chat_response)}")
-        print(f"chat_response: {chat_response}")
-        return "Success"
-
-    else:
-        return "I'm sorry, but we can't generate an answer. 😔 Please try asking in another way."
+    chat_response = mistral_client.chat.complete(model=MISTRAL_MODEL, messages=messages)
+    print(f"chat_response type: {type(chat_response)}")
+    print(f"chat_response: {chat_response}")
+    return chat_response

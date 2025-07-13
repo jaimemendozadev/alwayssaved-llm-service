@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from server.utils.clerk import authenticate_clerk_user
 from server.utils.llm.mistral import query_llm
+from server.utils.qdrant import query_qdrant_with_message
 
 
 class ConvoPostRequestBody(BaseModel):
@@ -25,7 +26,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
     try:
         message = body.message
 
-        query_llm(message)
+        qdrant_hits = query_qdrant_with_message(message)
+
+        if len(qdrant_hits) > 0:
+            query_llm(qdrant_hits, message)
 
         return {"status": 200, "message": "IT WORKS! 🚀"}
     except RequestValidationError as e:
