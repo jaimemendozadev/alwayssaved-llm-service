@@ -48,18 +48,42 @@ def query_qdrant_with_message(message: str) -> List[ScoredPoint]:
     embedding_model: SentenceTransformer = get_embedd_model()
     qdrant_client: QdrantClient = get_qdrant_client()
 
-    # Chunk & vectorize incoming message
-    chunks = chunk_text(message)
+    if not qdrant_client:
+        print("❌ Qdrant client could not be initialized.")
+        return []
 
-    vectors = embedding_model.encode(chunks, normalize_embeddings=True)
+    if not message:
+        print("⚠️ Message is empty or None.")
+        return []
 
-    query_vector = np.mean(vectors, axis=0)
+    try:
+        chunks = chunk_text(message)
+        if not chunks:
+            print("⚠️ No chunks generated from the input message.")
+            return []
 
-    # Search Qdrant Database for similar vectors with user message
-    hits = qdrant_client.search(
-        collection_name=QDRANT_COLLECTION_NAME,
-        query_vector=query_vector.tolist(),
-        limit=5,  # Return 5 closest points
-    )
+        vectors = embedding_model.encode(chunks, normalize_embeddings=True)
+        if not vectors.any():
+            print("⚠️ Failed to generate vectors from the message.")
+            return []
 
-    return hits
+        query_vector = np.mean(vectors, axis=0)
+
+        hits = qdrant_client.search(
+            collection_name=QDRANT_COLLECTION_NAME,
+            query_vector=query_vector.tolist(),
+            limit=5,
+        )
+
+        if not hits:
+            print("ℹ️ No results found for the query.")
+            return []
+
+        return hits
+
+    except UnexpectedResponse as e:
+        print(f"❌ Unexpected response from Qdrant: {e}")
+    except Exception as e:
+        print(f"❌ General error during Qdrant query: {e}")
+
+    return []
