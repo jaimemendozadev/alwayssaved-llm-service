@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 from mistralai import Mistral
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
@@ -24,10 +25,12 @@ def query_llm(message: str) -> str:
 
     vectors = embedding_model.encode(chunks, normalize_embeddings=True)
 
+    query_vector = np.mean(vectors, axis=0)
+
     # Search Qdrant Database for similar vectors with user message
-    hits = qdrant_client.query_points(
-        collection_name="my_collection",
-        query=vectors,
+    hits = qdrant_client.search(
+        collection_name=QDRANT_COLLECTION_NAME,
+        query_vector=query_vector.tolist(),
         limit=5,  # Return 5 closest points
     )
 

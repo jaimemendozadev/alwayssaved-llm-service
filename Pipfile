@@ -16,6 +16,7 @@ torch = "*"
 mistralai = "*"
 requests = "*"
 qdrant-client = "*"
+numpy = "*"
 
 [dev-packages]
 pre-commit = "*"
