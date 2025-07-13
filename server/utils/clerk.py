@@ -7,15 +7,20 @@ from fastapi import HTTPException, Request
 from server.utils.aws.ssm import get_secret
 from server.utils.mongodb import create_mongodb_instance
 
+PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
+
+APP_DOMAIN = (
+    os.getenv("PRODUCTION_APP_DOMAIN", "")
+    if PYTHON_MODE == "PRODUCTION"
+    else os.getenv("DEVELOPMENT_APP_DOMAIN", "")
+)
+
 
 class ClerkResult(TypedDict):
     clerk_id: str
 
 
-APP_DOMAIN = os.getenv("APP_DOMAIN")
-
-
-async def clerk_authenticate_get_user_details(request: Request) -> ClerkResult:
+async def authenticate_clerk_user(request: Request) -> ClerkResult:
 
     try:
         LLM_SERVICE_CLERK_SECRET_KEY = get_secret(
@@ -42,6 +47,9 @@ async def clerk_authenticate_get_user_details(request: Request) -> ClerkResult:
             ),
         )
 
+        # Log request_state for CloudWatch and potential debugging issues.
+        print(f"request_state in authenticate_clerk_user: {request_state}")
+
         if not request_state.is_signed_in:
             raise HTTPException(
                 status_code=401,
@@ -49,8 +57,6 @@ async def clerk_authenticate_get_user_details(request: Request) -> ClerkResult:
             )
 
         clerk_id = request_state.payload.get("sub")
-
-        print(f"clerk_id in clerk auth: {clerk_id}")
 
         found_user = (
             await mongo_client.get_database("alwayssaved")
@@ -63,12 +69,10 @@ async def clerk_authenticate_get_user_details(request: Request) -> ClerkResult:
                 f"Can't find a user with clerk_id {clerk_id} in the database."
             )
 
-        print(f"found_user in clerk_auth: {found_user}")
-
         return {"clerk_id": clerk_id}
 
     except ValueError as e:
-        print(f"❌ Exception in clerk_authenticate_get_user_details: {e}")
+        print(f"❌ Exception in authenticate_clerk_user: {e}")
         raise HTTPException(
             status_code=401, detail="User is unauthorized to use the app."
         )

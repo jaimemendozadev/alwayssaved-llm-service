@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 
-from server.utils.clerk import clerk_authenticate_get_user_details
+from server.utils.clerk import authenticate_clerk_user
 from server.utils.llm.mistral import query_llm
 
 
@@ -14,7 +14,7 @@ class ConvoPostRequestBody(BaseModel):
 
 
 convos_router = APIRouter(
-    prefix="/convos", dependencies=[Depends(clerk_authenticate_get_user_details)]
+    prefix="/convos", dependencies=[Depends(authenticate_clerk_user)]
 )
 
 
