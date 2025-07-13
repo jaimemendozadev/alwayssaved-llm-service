@@ -1,7 +1,7 @@
 import os
 
 from bson.objectid import ObjectId
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 from pymongo.errors import ServerSelectionTimeoutError
@@ -69,7 +69,12 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                     "llm_info": {"llm_company": LLM_COMPANY, "llm_model": LLM_MODEL},
                 }
             )
-            return {"status": 200, "payload": llm_message}
+
+            inserted_doc = await convo_msg_collection.find_one(
+                {"_id": llm_message.inserted_id}
+            )
+            inserted_doc["_id"] = str(inserted_doc["_id"])  # convert ObjectId to string
+            return {"status": 200, "payload": inserted_doc}
 
         llm_error_message = await convo_msg_collection.insert_one(
             {
@@ -81,20 +86,28 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             }
         )
 
-        return {"status": 200, "payload": llm_error_message}
+        inserted_doc = await convo_msg_collection.find_one(
+            {"_id": llm_error_message.inserted_id}
+        )
+        inserted_doc["_id"] = str(inserted_doc["_id"])
 
-    except RuntimeError:
-        print("MongoDB connection timed out.")
-        return {"status": 503, "message": "Database unavailable"}
-
-    except ServerSelectionTimeoutError:
-        print("MongoDB connection timed out.")
-        return {"status": 503, "message": "Database unavailable"}
+        return {"status": 200, "payload": inserted_doc}
 
     except RequestValidationError as e:
         print(f"RequestValidationError for Convo {convo_id}: ", e.errors())
+        raise HTTPException(
+            status_code=422,
+            detail={"status": 422, "error": "Validation Error", "message": str(e)},
+        )
+
+    except ServerSelectionTimeoutError:
+        print("MongoDB connection timed out.")
+        raise HTTPException(
+            status_code=503, detail={"status": 503, "message": "Database unavailable"}
+        )
 
     except Exception as e:
-        print(f"Other error for Convo {convo_id}: ", str(e))
-
-    return {"status": 500, "message": BASE_LLM_NO_RESPONSE}
+        print(f"Unhandled error for Convo {convo_id}: ", str(e))
+        raise HTTPException(
+            status_code=500, detail={"status": 500, "message": "Internal server error"}
+        )
