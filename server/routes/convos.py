@@ -46,7 +46,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             "convomessages"
         )
 
-        await convo_msg_collection.insert_one(
+        user_msg = await convo_msg_collection.insert_one(
             {
                 "conversation_id": ObjectId(conversation_id),
                 "user_id": ObjectId(user_id),
@@ -54,6 +54,8 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 "message": message,
             }
         )
+
+        user_msg_id = str(user_msg.inserted_id)
 
         qdrant_hits = query_qdrant_with_message(message, user_id, conversation_id)
 
@@ -74,7 +76,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 {"_id": llm_message.inserted_id}
             )
             sanitized_doc = deep_serialize_mongo(inserted_doc)
-            return {"status": 200, "payload": sanitized_doc}
+            return {
+                "status": 200,
+                "payload": {"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
+            }
 
         llm_error_message = await convo_msg_collection.insert_one(
             {
@@ -91,7 +96,10 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
         )
         sanitized_doc = deep_serialize_mongo(inserted_doc)
 
-        return {"status": 200, "payload": inserted_doc}
+        return {
+            "status": 200,
+            "payload": {"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
+        }
 
     except RequestValidationError as e:
         print(f"RequestValidationError for Convo {convo_id}: ", e.errors())
