@@ -27,6 +27,11 @@ app.add_middleware(
 app.include_router(convos_router, prefix="/api")
 
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
