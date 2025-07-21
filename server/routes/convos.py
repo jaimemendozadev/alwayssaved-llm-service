@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
@@ -18,6 +18,8 @@ class ConvoPostRequestBody(BaseModel):
     user_id: str
     sender_type: str
     message: str
+    file_ids_list: List[str]
+    note_id: str
 
 
 class ConvoResponse(BaseModel):
@@ -47,6 +49,8 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
     user_id = body.user_id
     conversation_id = body.conversation_id
     user_id = body.user_id
+    file_ids_list = body.file_ids_list
+    note_id = body.note_id
     try:
         message = body.message
 
@@ -69,7 +73,9 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
 
         user_msg_id = str(user_msg.inserted_id)
 
-        qdrant_hits = query_qdrant_with_message(message, user_id, conversation_id)
+        qdrant_hits = query_qdrant_with_message(
+            message, user_id, note_id, file_ids_list
+        )
 
         if len(qdrant_hits) > 0:
             llm_response = query_llm(qdrant_hits, message, user_id, conversation_id)

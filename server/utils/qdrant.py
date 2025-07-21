@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.conversions.common_types import CollectionInfo
+from qdrant_client.http import models as rest
 from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.http.models.models import ScoredPoint
 from sentence_transformers import SentenceTransformer
@@ -45,33 +46,33 @@ def get_qdrant_collection(q_client: QdrantClient) -> CollectionInfo | None:
 
 
 def query_qdrant_with_message(
-    message: str, user_id: str, convo_id: str
+    message: str, user_id: str, note_id: str, file_ids_list: List[str]
 ) -> List[ScoredPoint]:
     embedding_model: SentenceTransformer = get_embedd_model()
     qdrant_client: QdrantClient = get_qdrant_client()
 
     if not qdrant_client:
         print(
-            f"❌ Qdrant client could not be initialized for User {user_id} Convo {convo_id}."
+            f"❌ Qdrant client could not be initialized for User {user_id} Note {note_id}."
         )
         return []
 
     if not message:
-        print(f"⚠️ Message is empty or None User {user_id} Convo {convo_id}.")
+        print(f"⚠️ Message is empty or None User {user_id} Note {note_id}.")
         return []
 
     try:
         chunks = chunk_text(message)
         if not chunks:
             print(
-                f"⚠️ No chunks generated from the input message for User {user_id} Convo {convo_id}."
+                f"⚠️ No chunks generated from the input message for User {user_id} Note {note_id}."
             )
             return []
 
         vectors = embedding_model.encode(chunks, normalize_embeddings=True)
         if not vectors.any():
             print(
-                f"⚠️ Failed to generate vectors from the message for User {user_id} Convo {convo_id}."
+                f"⚠️ Failed to generate vectors from the message for User {user_id} Note {note_id}."
             )
             return []
 
@@ -81,6 +82,19 @@ def query_qdrant_with_message(
             collection_name=QDRANT_COLLECTION_NAME,
             query_vector=query_vector.tolist(),
             limit=5,
+            query_filter=rest.Filter(
+                must=[
+                    rest.FieldCondition(
+                        key="user_id", match=rest.MatchValue(value=user_id)
+                    ),
+                    rest.FieldCondition(
+                        key="note_id", match=rest.MatchValue(value=note_id)
+                    ),
+                    rest.FieldCondition(
+                        key="file_id", match=rest.MatchAny(any=file_ids_list)
+                    ),
+                ]
+            ),
         )
 
         print(f"hits in query_qdrant_with_message: {hits}")
@@ -88,7 +102,7 @@ def query_qdrant_with_message(
 
         if not hits:
             print(
-                f"ℹ️ No results found for the query for User {user_id} Convo {convo_id}."
+                f"ℹ️ No results found for the query for User {user_id} Note {note_id}."
             )
             return []
 
@@ -96,11 +110,11 @@ def query_qdrant_with_message(
 
     except UnexpectedResponse as e:
         print(
-            f"❌ Unexpected response from Qdrant for User {user_id} Convo {convo_id}: {e}"
+            f"❌ Unexpected response from Qdrant for User {user_id} Note {note_id}: {e}"
         )
     except Exception as e:
         print(
-            f"❌ General error during Qdrant query for User {user_id} Convo {convo_id}: {e}"
+            f"❌ General error during Qdrant query for User {user_id} Note {note_id}: {e}"
         )
 
     return []
