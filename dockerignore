@@ -34,3 +34,6 @@ dev_utils/
 # Add Dev Folders
 .mypy_cache/
 .ruff_cache/
+
+# Ignore .env file
+.env
