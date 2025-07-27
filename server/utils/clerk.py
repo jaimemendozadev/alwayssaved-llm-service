@@ -12,7 +12,7 @@ PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
 APP_DOMAIN = (
     get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAIN")
     if PYTHON_MODE == "PRODUCTION"
-    else os.getenv("DEVELOPMENT_APP_DOMAIN", "")
+    else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "")
 )
 
 
