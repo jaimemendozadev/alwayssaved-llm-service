@@ -10,7 +10,7 @@ from server.utils.mongodb import create_mongodb_instance
 PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
 
 APP_DOMAIN = (
-    os.getenv("PRODUCTION_APP_DOMAIN", "")
+    get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAIN")
     if PYTHON_MODE == "PRODUCTION"
     else os.getenv("DEVELOPMENT_APP_DOMAIN", "")
 )
