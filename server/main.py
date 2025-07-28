@@ -25,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(convos_router, prefix="/api")
+app.include_router(convos_router, prefix="/llm-api")
 
 
 @app.get("/health")
