@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
@@ -22,11 +22,6 @@ class ConvoPostRequestBody(BaseModel):
     note_id: str
 
 
-class ConvoResponse(BaseModel):
-    user_msg_id: str
-    llm_response: Dict[str, Any]
-
-
 class BackendResponse(BaseModel):
     status: int
     payload: Optional[Union[Any, list[Any]]] = None
@@ -43,8 +38,6 @@ LLM_MODEL = os.getenv("LLM_MODEL", "Unknown")
 
 @convos_router.post("/{convo_id}", response_model=BackendResponse)
 async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str):
-    print(f"convo_id: {convo_id}")
-    print(f"body: {body}")
 
     user_id = body.user_id
     conversation_id = body.conversation_id
