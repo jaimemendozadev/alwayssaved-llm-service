@@ -16,7 +16,6 @@ APP_DOMAIN = (
     else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "")
 )
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[APP_DOMAIN],

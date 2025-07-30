@@ -49,9 +49,6 @@ def query_llm(
 
         chat_response = mistral_client.chat.complete(model=LLM_MODEL, messages=messages)
 
-        print(f"chat_response in query_llm: {chat_response}")
-        print("\n")
-
         # Safety check for empty choices
         if not chat_response.choices:
             print(
