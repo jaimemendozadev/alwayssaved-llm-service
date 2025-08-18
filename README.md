@@ -14,7 +14,7 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
 - [3rd Party Services Needed](#3rd-party-services-needed)
 - [Environment and AWS Systems Manager Parameter Store Variables](#environment-and-aws-systems-manager-parameter-store-variables)
 - [Starting the App](#starting-the-app)
-- [File Structure and Text Vectorizing Flow](#file-structure-and-text-vectorizing-flow)
+- [File Structure and LLM Querying Flow](#file-structure-and-llm-querying-flow)
 - [AlwaysSaved System Design / App Flow](#alwayssaved-system-design--app-flow)
 
 
@@ -150,7 +150,7 @@ $ python3 service.py
 [Back to TOC](#table-of-contents-toc)
 
 ---
-## File Structure and Text Vectorizing Flow
+## File Structure and LLM Querying Flow
 
 ```
 /
