@@ -1,0 +1,28 @@
+[project]
+name = "alwayssaved-llm-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "python-dotenv",
+    "python-jose",
+    "clerk-backend-api",
+    "fastapi[all]",
+    "uvicorn",
+    "pymongo",
+    "boto3",
+    "sentence-transformers",
+    "torch",
+    "mistralai",
+    "requests",
+    "qdrant-client",
+    "numpy",
+]
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "mypy",
+    "ruff",
+    "mypy-boto3-ssm",
+]
