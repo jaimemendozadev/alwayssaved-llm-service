@@ -2,21 +2,22 @@ FROM python:3.11-slim
 
 # Avoid bytecode files + force stdout logs
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    UV_SYSTEM_PYTHON=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_NO_CACHE=1
 
 WORKDIR /app
 
-# System dependencies (if you need any more like build tools, add them here)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Install Python deps
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Install dependencies first (cache-friendly layer)
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-install-project --no-group dev
 
 # Copy app code
 COPY . .
 
 # Run server
-CMD ["python3", "service.py"]
+CMD ["uv", "run", "service.py"]
