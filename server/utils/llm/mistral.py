@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from mistralai import Mistral
+from mistralai.client.sdk import Mistral
 from qdrant_client.http.models.models import ScoredPoint
 
 from server.utils.aws.ssm import get_secret
