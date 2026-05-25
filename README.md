@@ -4,7 +4,6 @@ Welcome to the **AlwaysSaved** LLM Service — the user-facing web app that powe
 
 This is the repository for the LLM Service - Step 7 of the [App Flow](#alwayssaved-system-design--app-flow) where a User can ask the LLM questions about their uploaded data.
 
-
 For more information about What is AlwaysSaved and its Key Features, refer to the [AlwaysSaved Frontend README](https://github.com/jaimemendozadev/alwayssaved-fe-app).
 
 ---
@@ -13,39 +12,31 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
 
 - [3rd Party Services Needed](#3rd-party-services-needed)
 - [Environment and AWS Systems Manager Parameter Store Variables](#environment-and-aws-systems-manager-parameter-store-variables)
-- [Starting the App](#starting-the-app)
 - [File Structure and LLM Querying Flow](#file-structure-and-llm-querying-flow)
 - [AlwaysSaved System Design / App Flow](#alwayssaved-system-design--app-flow)
 
-
 ---
-
 
 ## 3rd Party Services Needed
 
 - As a friendly reminder from the [AlwaysSaved Frontend](https://github.com/jaimemendozadev/alwayssaved-fe-app), if you successfully imlemented User Authentication with <a href="https://clerk.com/" target="_blank">Clerk.com</a>, you'll need to save the `CLERK_SECRET_KEY` and `CLERK_JWT_KEY` in the AWS Parameter Store in order to protect the FastAPI Backend with Clerk.
-
   - Aside from the ambiguous documentation in the [Clerk.com Python SDK](https://github.com/clerk/clerk-sdk-python?tab=readme-ov-file#request-authentication), one helpful resource that shows you how to integrate Clerk into a FastAPI Backend, including the use of the `CLERK_SECRET_KEY` and `CLERK_JWT_KEY` environment variables, is the following [YouTube video](https://youtu.be/13tMEW8r6C0?t=3752).
 
 <br />
 
-- You'll also need to setup a Mistral AI account ([see the docs for instructions](https://docs.mistral.ai/getting-started/quickstart/)), add your credit card  information, and create a new API Key that you will also store in the AWS Parameter Store.
+- You'll also need to setup a Mistral AI account ([see the docs for instructions](https://docs.mistral.ai/getting-started/quickstart/)), add your credit card information, and create a new API Key that you will also store in the AWS Parameter Store.
 
 - Finally, you'll need to spin up the [Frontend app](https://github.com/jaimemendozadev/alwayssaved-fe-app) to get the LLM Service to work. Remember to save whatever `localhost` URL the Frontend uses because you'll need to save it as an environment variable named `FASTAPI_DEVELOPMENT_APP_DOMAIN` ([see next section](#environment-and-aws-systems-manager-parameter-store-variables)).
 
 <br />
 
-
 [Back to TOC](#table-of-contents-toc)
-
 
 ---
 
 ## Environment and AWS Systems Manager Parameter Store Variables
 
 In order to setup the app for local development, you'll need to create a `.env` file at the root of this repo and prefill all the required Environment Variables as shown below:
-
-
 
 ```
 FASTAPI_DEVELOPMENT_APP_DOMAIN=http://localhost:3000
@@ -66,9 +57,7 @@ AWS_REGION=us-east-1
 
 <br />
 
-
 For both development and production, there were some variables that we couldn't store in the .env file, so we had to resort to using the <a href="https://aws.amazon.com/systems-manager/" target="_blank">AWS Systems Manager Parameter Store</a> ahead of time in order to get the app functioning.
-
 
 The following variable keys have their values stored in the Parameter store as follows:
 
@@ -104,52 +93,12 @@ The only new variables you have to save in the AWS Parameter Store are the `/alw
 
 All the other `/alwayssaved/MONGO_DB` or `/alwayssaved/QDRANT` variables should already be in the Parameter Store if you already setup the [AlwaysSaved Frontend](#https://github.com/jaimemendozadev/alwayssaved-fe-app), the [Extractor Service](https://github.com/jaimemendozadev/alwayssaved-extractor-service), or the [Embedding Service](https://github.com/jaimemendozadev/alwayssaved-embedding-service).
 
-
-
 <br />
 
 [Back to TOC](#table-of-contents-toc)
 
 ---
-## Starting the App
 
-We need to use a virtual environment (we use the [Pipenv virtualenv management tool](https://pipenv.pypa.io/en/latest/)) to run the app.
-
-Navigate to the root of the project folder in your computer. Open 2 separate terminal windows that both point to the root of the project. In one of those terminal windows run the following commands:
-
-
-Create and enter the virtual environment:
-```
-$ pipenv --python 3.11
-
-```
-
-
-Enter the virtual environment:
-
-```
-$ pipenv shell
-```
-
-Install the dependencies in the `Pipfile`:
-
-```
-$ pipenv install
-```
-
-
-Start the Embedding Service at the root `service.py` file:
-
-```
-$ python3 service.py
-```
-
-
-
-
-[Back to TOC](#table-of-contents-toc)
-
----
 ## File Structure and LLM Querying Flow
 
 ```
@@ -194,26 +143,24 @@ $ python3 service.py
 
 
 ```
+
 For v1, the LLM Service just has one responsibility, to service all incoming request from the Frontend to `/llm-api/convos` so that when the user submits a question to the LLM Service, we:
 
- - Get the User text question, convert the text to chunks, and use the `EMBEDDING_MODEL` to convert each text `"chunk"` into a `"vector embedding"`;
+- Get the User text question, convert the text to chunks, and use the `EMBEDDING_MODEL` to convert each text `"chunk"` into a `"vector embedding"`;
 
  <br />
 
- - Use the `vector embeddings` from the User's text question to search the Qdrant Vector Database for all relevant chunks of information that match the User's question;
+- Use the `vector embeddings` from the User's text question to search the Qdrant Vector Database for all relevant chunks of information that match the User's question;
 
  <br />
 
- - Using the Vector Database results found from the Vector Database search, take the found text results along with the User's text question and make an API Request to the Mistral AI LLM that will generate a human readable response to the User's original question.<br />
+- Using the Vector Database results found from the Vector Database search, take the found text results along with the User's text question and make an API Request to the Mistral AI LLM that will generate a human readable response to the User's original question.<br />
 
 <br />
-
-
 
 [Back to TOC](#table-of-contents-toc)
 
 ---
-
 
 ## AlwaysSaved System Design / App Flow
 
