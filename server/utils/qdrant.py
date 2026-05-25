@@ -78,9 +78,9 @@ def query_qdrant_with_message(
 
         query_vector = np.mean(vectors, axis=0)
 
-        hits = qdrant_client.search(
+        response = qdrant_client.query_points(
             collection_name=QDRANT_COLLECTION_NAME,
-            query_vector=query_vector.tolist(),
+            query=query_vector.tolist(),
             limit=5,
             query_filter=rest.Filter(
                 must=[
@@ -96,6 +96,8 @@ def query_qdrant_with_message(
                 ]
             ),
         )
+
+        hits = response.points
 
         if not hits:
             print(
