@@ -12,6 +12,8 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
 
 - [3rd Party Services Needed](#3rd-party-services-needed)
 - [Environment and AWS Systems Manager Parameter Store Variables](#environment-and-aws-systems-manager-parameter-store-variables)
+- [Installing the App Dependencies](#installing-the-app-dependencies)
+- [Starting the App](#starting-the-app)
 - [File Structure and LLM Querying Flow](#file-structure-and-llm-querying-flow)
 - [AlwaysSaved System Design / App Flow](#alwayssaved-system-design--app-flow)
 
@@ -27,6 +29,18 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
 - You'll also need to setup a Mistral AI account ([see the docs for instructions](https://docs.mistral.ai/getting-started/quickstart/)), add your credit card information, and create a new API Key that you will also store in the AWS Parameter Store.
 
 - Finally, you'll need to spin up the [Frontend app](https://github.com/jaimemendozadev/alwayssaved-fe-app) to get the LLM Service to work. Remember to save whatever `localhost` URL the Frontend uses because you'll need to save it as an environment variable named `FASTAPI_DEVELOPMENT_APP_DOMAIN` ([see next section](#environment-and-aws-systems-manager-parameter-store-variables)).
+
+<br />
+
+- **AWS CLI and credentials are required.** The LLM Service uses `boto3` to fetch secrets from the AWS Systems Manager Parameter Store at startup. Without valid AWS credentials on your local machine the app will fail to start. Make sure you have:
+  1. The [AWS CLI installed](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) on your machine.
+  2. Your credentials configured — either by running `aws configure` (which writes to `~/.aws/credentials`) or by exporting the standard environment variables in your shell:
+     ```
+     export AWS_ACCESS_KEY_ID=your_access_key_id
+     export AWS_SECRET_ACCESS_KEY=your_secret_access_key
+     export AWS_SESSION_TOKEN=your_session_token   # only needed for temporary/STS credentials
+     ```
+  The credentials must belong to an IAM user or role that has `ssm:GetParameter` permission for the `/alwayssaved/*` parameter paths listed in the next section.
 
 <br />
 
@@ -92,6 +106,72 @@ The only new variables you have to save in the AWS Parameter Store are the `/alw
 <br />
 
 All the other `/alwayssaved/MONGO_DB` or `/alwayssaved/QDRANT` variables should already be in the Parameter Store if you already setup the [AlwaysSaved Frontend](#https://github.com/jaimemendozadev/alwayssaved-fe-app), the [Extractor Service](https://github.com/jaimemendozadev/alwayssaved-extractor-service), or the [Embedding Service](https://github.com/jaimemendozadev/alwayssaved-embedding-service).
+
+<br />
+
+[Back to TOC](#table-of-contents-toc)
+
+---
+
+## Installing the App Dependencies
+
+You'll need the <a href="https://docs.astral.sh/uv/" target="_blank">uv Python package/project manager</a> to start the app.
+
+- If `uv` is not installed on your computer, <a href="https://docs.astral.sh/uv/getting-started/installation/" target="_blank">reference the documentation</a> for installation instructions.
+
+The project also leverages the <a href="https://docs.astral.sh/ruff/" target="_blank">ruff Python linter/code formatter</a>.
+
+- If `ruff` is not installed on your computer, <a href="https://docs.astral.sh/ruff/installation/" target="_blank">reference the documentation</a> for installation instructions.
+
+Once `uv` and `ruff` are installed, run the following command at the root of the repo to create the virtual environment and install all project and dev dependencies (including `pre-commit`):
+
+```
+$ uv sync
+```
+
+After `uv sync` completes, run the following command once to register the `pre-commit` git hooks:
+
+```
+$ pre-commit install
+```
+
+This wires up the `ruff` linter/formatter to run automatically whenever you commit changes.
+
+<br />
+
+[Back to TOC](#table-of-contents-toc)
+
+---
+
+## Starting the App
+
+Once all the dependencies are installed and `pre-commit` hooks are registered (see [Installing the App Dependencies](#installing-the-app-dependencies)), open two separate terminal windows at the root of the repo.
+
+**Terminal Window 1 — Run the service:**
+
+```
+$ uv run python service.py
+```
+
+This starts the LLM Service and keeps it running.
+
+**Terminal Window 2 — Development and Git commits:**
+
+Enter the virtual environment that was created by `uv sync`:
+
+```
+$ source .venv/bin/activate
+```
+
+Use this terminal window during development to stage and commit your changes with Git. Because the `pre-commit` hooks are registered, any `git commit` will automatically run `ruff` to lint and format your code before the commit is saved.
+
+If `ruff` finds errors, the commit will be blocked. Fix the reported issues, re-stage the files, and commit again. Once `ruff` passes, the commit will be saved and you can push the changes to GitHub.
+
+To exit the virtual environment when you're done, run:
+
+```
+$ deactivate
+```
 
 <br />
 
