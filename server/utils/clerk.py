@@ -47,9 +47,6 @@ async def authenticate_clerk_user(request: Request) -> ClerkResult:
             ),
         )
 
-        # Log request_state for CloudWatch and potential debugging issues.
-        print(f"request_state in authenticate_clerk_user: {request_state}")
-
         if not request_state.is_signed_in:
             raise HTTPException(
                 status_code=401,

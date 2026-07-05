@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 def get_embedd_model() -> SentenceTransformer:
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    print(f"✅ Using device for embedd model: {device}")
+    print(f"✅ Using device for embed model: {device}")
 
     model_name = os.getenv("EMBEDDING_MODEL", "multi-qa-MiniLM-L6-cos-v1")
 

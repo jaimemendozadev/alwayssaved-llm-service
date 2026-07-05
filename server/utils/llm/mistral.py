@@ -35,8 +35,6 @@ def generate_prompt(qdrant_results: List[ScoredPoint], message: str) -> str:
     Answer:
     """
 
-    print(f"prompt in generate_prompt: {prompt}")
-
     return prompt
 
 
