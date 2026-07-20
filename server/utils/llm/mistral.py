@@ -47,6 +47,9 @@ def query_llm(
 
         chat_response = mistral_client.chat.complete(model=LLM_MODEL, messages=messages)
 
+        # TODO: Delete print debug statement
+        print(f"chat_response: {chat_response} \n")
+
         # Safety check for empty choices
         if not chat_response.choices:
             print(
@@ -55,7 +58,13 @@ def query_llm(
             return BASE_LLM_NO_RESPONSE
 
         # Extract assistant's message
-        assistant_message = chat_response.choices[0].message.content.strip()
+        extracted_message = chat_response.choices[0].message.content.strip()
+
+        assistant_message = extracted_message.replace("\n", "<br />").replace("\r", "")
+
+        # TODO: Delete print debug statement
+        print(f"assistant_message: {assistant_message} \n")
+
         return assistant_message
 
     except Exception as e:
