@@ -40,7 +40,7 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
      export AWS_SECRET_ACCESS_KEY=your_secret_access_key
      export AWS_SESSION_TOKEN=your_session_token   # only needed for temporary/STS credentials
      ```
-  The credentials must belong to an IAM user or role that has `ssm:GetParameter` permission for the `/alwayssaved/*` parameter paths listed in the next section.
+     The credentials must belong to an IAM user or role that has `ssm:GetParameter` permission for the `/alwayssaved/*` parameter paths listed in the next section.
 
 <br />
 
@@ -249,6 +249,15 @@ For v1, the LLM Service just has one responsibility, to service all incoming req
 Above 👆🏽you will see the entire System Design and App Flow for Always Saved.
 
 If you need a better view of the entire screenshot, feel free to [download the Excalidraw File](https://github.com/jaimemendozadev/alwayssaved-fe-app/blob/main/README/alwayssaved-system-design.excalidraw) and view the System Design document in <a href="https://excalidraw.com/" target="_blank">Excalidraw</a>.
+
+<br />
+
+You can inspect the rest of the repos for each service/component in the diagram at the following URLs:
+
+- [AlwaysSaved Frontend](https://github.com/jaimemendozadev/alwayssaved-fe-app)
+- [Embedding Service](https://github.com/jaimemendozadev/alwayssaved-embedding-service)
+- [Extractor Service](https://github.com/jaimemendozadev/alwayssaved-extractor-service)
+- [Terraform Infra](https://github.com/jaimemendozadev/alwayssaved-terraform)
 
 <br />
 
