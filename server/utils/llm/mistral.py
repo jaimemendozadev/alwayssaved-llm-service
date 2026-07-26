@@ -60,7 +60,12 @@ def query_llm(
         # Extract assistant's message
         extracted_message = chat_response.choices[0].message.content.strip()
 
-        assistant_message = extracted_message.replace("\n", "<br />").replace("\r", "")
+        assistant_message = (
+            extracted_message.replace("\n", "<br />")
+            .replace("\r", "")
+            .replace("Based on the provided context,", "")
+            .strip()
+        )
 
         # TODO: Delete print debug statement
         print(f"assistant_message: {assistant_message} \n")
