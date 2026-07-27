@@ -11,7 +11,7 @@ app = FastAPI()
 PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
 
 APP_DOMAIN = (
-    get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAIN")
+    get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAINS")
     if PYTHON_MODE == "PRODUCTION"
     else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "http://localhost:3000")
 )

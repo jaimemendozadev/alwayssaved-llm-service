@@ -47,9 +47,6 @@ def query_llm(
 
         chat_response = mistral_client.chat.complete(model=LLM_MODEL, messages=messages)
 
-        # TODO: Delete print debug statement
-        print(f"chat_response: {chat_response} \n")
-
         # Safety check for empty choices
         if not chat_response.choices:
             print(
@@ -66,9 +63,6 @@ def query_llm(
             .replace("Based on the provided context,", "")
             .strip()
         )
-
-        # TODO: Delete print debug statement
-        print(f"assistant_message: {assistant_message} \n")
 
         return assistant_message
 

@@ -53,7 +53,7 @@ For more information about What is AlwaysSaved and its Key Features, refer to th
 In order to setup the app for local development, you'll need to create a `.env` file at the root of this repo and prefill all the required Environment Variables as shown below:
 
 ```
-FASTAPI_DEVELOPMENT_APP_DOMAIN=http://localhost:3000
+FASTAPI_DEVELOPMENT_APP_DOMAINS=http://localhost:3000
 
 QDRANT_COLLECTION_NAME=alwayssaved_user_files
 
@@ -69,6 +69,9 @@ AWS_REGION=us-east-1
 
 ```
 
+<br />
+
+<strong>IMPORTANT</strong>: In production, you need to list the `alwayssaved.com` domain as a comma-delimited list with and without the `www` in the AWS Parameter store. If you only have one domain listed and you try chatting with LLM on the Frontend, depending on which domain you're currently logged into, the request to the API won't work.
 <br />
 
 For both development and production, there were some variables that we couldn't store in the .env file, so we had to resort to using the <a href="https://aws.amazon.com/systems-manager/" target="_blank">AWS Systems Manager Parameter Store</a> ahead of time in order to get the app functioning.
