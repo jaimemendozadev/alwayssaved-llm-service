@@ -15,6 +15,8 @@ ssm_client: "SSMClient" = boto3.client("ssm", region_name=AWS_REGION)
 def get_secret(param_name: str) -> Optional[str]:
     try:
         response = ssm_client.get_parameter(Name=param_name, WithDecryption=True)
+
+        print(f"response in get_secret {response} \n")
         return response["Parameter"]["Value"]
 
     except ClientError as e:

@@ -9,11 +9,19 @@ from server.utils.mongodb import create_mongodb_instance
 
 PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
 
-APP_DOMAIN = (
+APP_DOMAIN_RAW = (
     get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAINS")
     if PYTHON_MODE == "PRODUCTION"
     else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "http://localhost:3000")
 )
+
+APP_DOMAINS = (
+    [domain.strip() for domain in APP_DOMAIN_RAW.split(",") if domain.strip()]
+    if APP_DOMAIN_RAW
+    else []
+)
+
+print(f"APP_DOMAINS {APP_DOMAINS} \n")
 
 
 class ClerkResult(TypedDict):
@@ -43,7 +51,7 @@ async def authenticate_clerk_user(request: Request) -> ClerkResult:
         request_state = clerk_sdk.authenticate_request(
             request,
             AuthenticateRequestOptions(
-                authorized_parties=[APP_DOMAIN], jwt_key=LLM_SERVICE_CLERK_JWT_KEY
+                authorized_parties=APP_DOMAINS, jwt_key=LLM_SERVICE_CLERK_JWT_KEY
             ),
         )
 

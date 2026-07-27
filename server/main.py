@@ -16,6 +16,8 @@ APP_DOMAIN = (
     else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "http://localhost:3000")
 )
 
+print(f"APP_DOMAIN {APP_DOMAIN}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[APP_DOMAIN],
