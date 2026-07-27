@@ -1,25 +1,11 @@
-import os
 from typing import TypedDict
 
 from clerk_backend_api import AuthenticateRequestOptions, Clerk
 from fastapi import HTTPException, Request
 
+from server.utils.app_domains import APP_DOMAINS
 from server.utils.aws.ssm import get_secret
 from server.utils.mongodb import create_mongodb_instance
-
-PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
-
-APP_DOMAIN_RAW = (
-    get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAINS")
-    if PYTHON_MODE == "PRODUCTION"
-    else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "http://localhost:3000")
-)
-
-APP_DOMAINS = (
-    [domain.strip() for domain in APP_DOMAIN_RAW.split(",") if domain.strip()]
-    if APP_DOMAIN_RAW
-    else []
-)
 
 print(f"APP_DOMAINS {APP_DOMAINS} \n")
 

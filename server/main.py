@@ -1,26 +1,16 @@
-import os
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from server.routes.convos import convos_router
-from server.utils.aws.ssm import get_secret
+from server.utils.app_domains import APP_DOMAINS
 
 app = FastAPI()
 
-PYTHON_MODE = os.getenv("PYTHON_MODE", "DEVELOPMENT")
-
-APP_DOMAIN = (
-    get_secret("/alwayssaved/FASTAPI_PRODUCTION_APP_DOMAINS")
-    if PYTHON_MODE == "PRODUCTION"
-    else os.getenv("FASTAPI_DEVELOPMENT_APP_DOMAIN", "http://localhost:3000")
-)
-
-print(f"APP_DOMAIN {APP_DOMAIN}")
+print(f"APP_DOMAINS {APP_DOMAINS}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[APP_DOMAIN],
+    allow_origins=APP_DOMAINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
