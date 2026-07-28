@@ -57,6 +57,7 @@ def query_llm(
         # Extract assistant's message
         extracted_message = chat_response.choices[0].message.content.strip()
 
+        # 7-28-26 TODO: Create a util function that extracts "Based on the provided context" for different languages.
         assistant_message = (
             extracted_message.replace("\n", "<br />")
             .replace("\r", "")

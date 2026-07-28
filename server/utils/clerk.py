@@ -7,8 +7,6 @@ from server.utils.app_domains import APP_DOMAINS
 from server.utils.aws.ssm import get_secret
 from server.utils.mongodb import create_mongodb_instance
 
-print(f"APP_DOMAINS {APP_DOMAINS} \n")
-
 
 class ClerkResult(TypedDict):
     clerk_id: str

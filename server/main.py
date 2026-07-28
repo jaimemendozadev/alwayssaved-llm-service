@@ -6,8 +6,6 @@ from server.utils.app_domains import APP_DOMAINS
 
 app = FastAPI()
 
-print(f"APP_DOMAINS {APP_DOMAINS}")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=APP_DOMAINS,
