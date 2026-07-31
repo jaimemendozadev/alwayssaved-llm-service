@@ -42,6 +42,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
     user_id = body.user_id
     conversation_id = body.conversation_id
     user_id = body.user_id
+    sender_type = body.sender_type
     file_ids_list = body.file_ids_list
     note_id = body.note_id
     try:
@@ -55,11 +56,13 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             "convomessages"
         )
 
+        # Persist incoming ConvoMessage payload to DB.
         user_msg = await convo_msg_collection.insert_one(
             {
                 "conversation_id": ObjectId(conversation_id),
                 "user_id": ObjectId(user_id),
-                "sender_type": "user",
+                "note_id": ObjectId(note_id),
+                "sender_type": sender_type,
                 "message": message,
             }
         )
@@ -70,6 +73,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             message, user_id, note_id, file_ids_list
         )
 
+        # If the LLM produces a response, save LLM response to DB and send back to Frontend.
         if len(qdrant_hits) > 0:
             llm_response = query_llm(qdrant_hits, message, user_id, conversation_id)
 
@@ -77,6 +81,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 {
                     "conversation_id": ObjectId(conversation_id),
                     "user_id": ObjectId(user_id),
+                    "note_id": ObjectId(note_id),
                     "sender_type": "llm",
                     "message": llm_response,
                     "llm_info": {"llm_company": LLM_COMPANY, "llm_model": LLM_MODEL},
@@ -96,6 +101,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             {
                 "conversation_id": ObjectId(conversation_id),
                 "user_id": ObjectId(user_id),
+                "note_id": ObjectId(note_id),
                 "sender_type": "llm",
                 "message": BASE_LLM_NO_RESPONSE,
                 "llm_info": {"llm_company": LLM_COMPANY, "llm_model": LLM_MODEL},
@@ -105,6 +111,7 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
         inserted_doc = await convo_msg_collection.find_one(
             {"_id": llm_error_message.inserted_id}
         )
+
         sanitized_doc = deep_serialize_mongo(inserted_doc)
 
         return BackendResponse(
