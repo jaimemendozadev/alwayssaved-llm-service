@@ -62,7 +62,7 @@ def query_llm(
             extracted_message.replace("\n", "<br />")
             .replace("\r", "")
             .replace("Based on the provided context,", "")
-            .replate("From the provided context,", "")
+            .replace("From the provided context,", "")
             .strip()
         )
 
