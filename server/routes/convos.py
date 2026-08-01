@@ -67,6 +67,11 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
             }
         )
 
+        await convo_msg_collection.update_one(
+            {"_id": ObjectId(user_msg.inserted_id)},
+            {"$currentDate": {"date_sent": True}},
+        )
+
         user_msg_id = str(user_msg.inserted_id)
 
         qdrant_hits = query_qdrant_with_message(
@@ -88,10 +93,17 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 }
             )
 
+            await convo_msg_collection.update_one(
+                {"_id": ObjectId(llm_message.inserted_id)},
+                {"$currentDate": {"date_sent": True}},
+            )
+
             inserted_doc = await convo_msg_collection.find_one(
                 {"_id": llm_message.inserted_id}
             )
+
             sanitized_doc = deep_serialize_mongo(inserted_doc)
+
             return BackendResponse(
                 status=200,
                 payload={"user_msg_id": user_msg_id, "llm_response": sanitized_doc},
@@ -106,6 +118,11 @@ async def handle_incoming_user_message(body: ConvoPostRequestBody, convo_id: str
                 "message": BASE_LLM_NO_RESPONSE,
                 "llm_info": {"llm_company": LLM_COMPANY, "llm_model": LLM_MODEL},
             }
+        )
+
+        await convo_msg_collection.update_one(
+            {"_id": ObjectId(llm_error_message.inserted_id)},
+            {"$currentDate": {"date_sent": True}},
         )
 
         inserted_doc = await convo_msg_collection.find_one(
